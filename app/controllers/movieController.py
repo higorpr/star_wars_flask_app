@@ -89,6 +89,21 @@ def retrieveMovie(movieId):
         return jsonify({"Error": e.message}), e.statusCode
     except Exception as e:
         return jsonify({"Error": str(e)}), 500
+    
+@movieBlueprint.route("/name/<movieTitle>", methods=["GET"])
+def retrieveMovieByTitle(movieTitle):
+    movieService = MovieService()
+    try:
+        movie = movieService.getMovieByTitle(movieTitle)
+        if movie != None:
+            movie["_id"] = str(movie["_id"])
+            return jsonify(movie), 200
+        else:
+            return jsonify([]),200
+    except CustomException as e:
+        return jsonify({"Error": e.message}), e.statusCode
+    except Exception as e:
+        return jsonify({"Error": str(e)}), 500
 
 
 @movieBlueprint.route("/<movieId>", methods=["PUT"])
@@ -154,7 +169,6 @@ def deleteMovie(movieId):
         # Verify if planetId exists and removes planetId from movie entries
         movie = movieService.getMovieById(movieId)
         planetsInIds = movie["planetIds"]
-        print(planetsInIds)
         for planetId in planetsInIds:
             planetService.removeMovieIdFromList(planetId, movieId)
 

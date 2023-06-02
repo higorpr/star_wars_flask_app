@@ -20,16 +20,17 @@ class MovieService:
 
     def getMovieByTitle(self, movieTitle):
         movie = self.movieRepository.getMovieByTitle(movieTitle)
-        return movie[0]
+        return movie
 
     def createMovie(self, title, releaseDate, director, planetIds=[]):
         # Verify if sent movie is duplicated
         movieExists = self.movieRepository.getMovieByTitle(title)
-        if len(movieExists) > 0:
+        if movieExists != None:
             raise CustomException("Duplicated Planet Error", 409)
 
         # Create movie entry on database
         movie = Movie(title, releaseDate, director, planetIds)
+        print(movie)
         return self.movieRepository.createMovie(movie)
 
     def updateMovieById(self, movieId, movieUpdates):

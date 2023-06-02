@@ -88,6 +88,22 @@ def retrievePlanet(planetId):
         return jsonify({"Error": str(e)}), 500
 
 
+@planetBlueprint.route("/name/<planetName>", methods=["GET"])
+def retrievePlanetByName(planetName):
+    planetService = PlanetService()
+    try:
+        planet = planetService.getPlanetByName(planetName)
+        if planet != None:
+            planet["_id"] = str(planet["_id"])
+            return jsonify(planet), 200
+        else:
+            return jsonify([]), 200
+    except CustomException as e:
+        return jsonify({"Error": e.message}), e.statusCode
+    except Exception as e:
+        return jsonify({"Error": str(e)}), 500
+
+
 @planetBlueprint.route("/<planetId>", methods=["PUT"])
 def updatePlanet(planetId):
     planetService = PlanetService()
@@ -152,7 +168,6 @@ def deletePlanet(planetId):
         planet = planetService.getPlanetById(planetId)
 
         moviesInIds = planet["movieIds"]
-        print(moviesInIds)
         for movieId in moviesInIds:
             movieService.removePlanetIdFromList(movieId, planetId)
 

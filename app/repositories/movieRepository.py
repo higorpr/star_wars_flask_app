@@ -18,7 +18,7 @@ class MovieRepository:
 
     # class method to retrieve movie by name (R)
     def getMovieByTitle(self, movieTitle: str):
-        movieInfo = list(self.movieCollection.find({"title": movieTitle}))
+        movieInfo = self.movieCollection.find_one({"title": movieTitle})
         return movieInfo
 
     # class method to create new movie (C)

@@ -17,8 +17,9 @@ class PlanetRepository:
         return self.planetsCollection.find_one({"_id": ObjectId(planetId)})
 
     def getPlanetByName(self, planetName: str):
-        planetInfo = self.planetsCollection.find({"name": planetName})
-        return list(planetInfo)
+        print(planetName)
+        planetInfo = self.planetsCollection.find_one({"name": planetName})
+        return planetInfo
 
     # class method to create new movie (C)
     def createPlanet(self, planet: Planet):

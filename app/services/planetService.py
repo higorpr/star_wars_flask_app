@@ -20,12 +20,12 @@ class PlanetService:
 
     def getPlanetByName(self, planetName):
         planet = self.planetRepository.getPlanetByName(planetName)
-        return planet[0]
+        return planet
 
     def createPlanet(self, name, climate, diameter, population, movieIds=[]):
         # Verify if planet is duplicated
         planetExists = self.planetRepository.getPlanetByName(name)
-        if len(planetExists) > 0:
+        if planetExists == None:
             raise CustomException("Duplicated Planet Error", 409)
 
         # Create planet entry on database
