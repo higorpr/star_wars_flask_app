@@ -11,9 +11,5 @@ class Planet:
         self.diameter = diameter
         self.population = population
         self.movieIds = movieIds
-        self.planetCollection = mongo.db.planets
-
-    def save(self):
         self.createdAt = datetime.utcnow()
         self.updatedAt = self.createdAt
-        self.planetCollection.insert_one(self.__dict__)

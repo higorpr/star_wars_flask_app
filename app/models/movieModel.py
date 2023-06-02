@@ -8,9 +8,5 @@ class Movie:
         self.releaseDate = releaseDate
         self.director = director
         self.planetIds = planetIds
-        self.movieCollection = mongo.db.movies
-
-    def save(self):
         self.createdAt = datetime.utcnow()
         self.updatedAt = self.createdAt
-        self.movieCollection.insert_one(self.__dict__)
