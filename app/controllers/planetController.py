@@ -96,6 +96,13 @@ def updatePlanet(planetId):
     planetUpdates = request.get_json()
 
     try:
+        # Check if planet id exists
+        planet = planetService.getPlanetById(planetId)
+
+        # Json Request Body Validation
+        if not updatePlanetValidator(planetUpdates):
+            return jsonify({"Error": "Please send valid fields for planet update"}), 400
+
         # Check if planet was updated with movieIds and if these movies exist in database
         if "movieIds" in planetUpdates:
             movieIds = planetUpdates["movieIds"]
@@ -108,11 +115,21 @@ def updatePlanet(planetId):
                     404,
                 )
 
-        if not updatePlanetValidator(planetUpdates):
-            return jsonify({"Error": "Please send valid fields for planet update"}), 400
+            else:
+                currentMovieIds = set(planet["movieIds"])
+                sentMovieIds = set(movieIds)
+                movieIdsRemove = list(currentMovieIds - sentMovieIds)
+                movieIdsAdd = list(sentMovieIds - currentMovieIds)
 
-        # Check if planet id exists
-        planetService.getPlanetById(planetId)
+                # Removal processes
+                for movieId in movieIdsRemove:
+                    planetService.removeMovieIdFromList(planetId, movieId)
+                    movieService.removePlanetIdFromList(movieId, planetId)
+
+                # Addition processes
+                for movieId in movieIdsAdd:
+                    planetService.updateMovieList(planetId, movieId)
+                    movieService.updatePlanetList(movieId, planetId)
 
         # update planet
         planetService.updatePlanetById(planetId, planetUpdates)

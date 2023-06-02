@@ -94,17 +94,47 @@ def retrieveMovie(movieId):
 @movieBlueprint.route("/<movieId>", methods=["PUT"])
 def updateMovie(movieId):
     movieService = MovieService()
+    planetService = PlanetService()
 
     movieUpdates = request.get_json()
 
-    if not updateMovieValidator(movieUpdates):
-        return jsonify({"Error": "Please send valid fields for movie update"}), 400
-
     try:
         # Check if planet id exists
-        movieService.getMovieById(movieId)
+        movie = movieService.getMovieById(movieId)
 
-        # update planet
+        # Json Request Body Validation
+        if not updateMovieValidator(movieUpdates):
+            return jsonify({"Error": "Please send valid fields for movie update"}), 400
+
+        # Check if planet was updated with movieIds and if these movies exist in database
+        if "planetIds" in movieUpdates:
+            planetIds = movieUpdates["planetIds"]
+            inexistantIds = planetService.getInexistantPlanetIds(planetIds)
+            if inexistantIds != None:
+                return (
+                    jsonify(
+                        f"Error: The following planet ids are not registered in the database: {inexistantIds}"
+                    ),
+                    404,
+                )
+
+            else:
+                currentPlanetIds = set(movie["planetIds"])
+                sentPlanetIds = set(planetIds)
+                planetIdsRemove = list(currentPlanetIds - sentPlanetIds)
+                planetIdsAdd = list(sentPlanetIds - currentPlanetIds)
+
+                # Removal processes
+                for planetId in planetIdsRemove:
+                    movieService.removePlanetIdFromList(movieId, planetId)
+                    planetService.removeMovieIdFromList(planetId, movieId)
+
+                # Addition processes
+                for planetId in planetIdsAdd:
+                    movieService.updatePlanetList(movieId, planetId)
+                    planetService.updateMovieList(planetId, movieId)
+
+        # update movie
         movieService.updateMovieById(movieId, movieUpdates)
         targetMovie = movieService.getMovieById(movieId)
 
